@@ -1,8 +1,9 @@
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
-const Dotenv = require('dotenv-webpack');
+
 const deps = require("./package.json").dependencies;
-module.exports = (_, argv) => ({
+
+module.exports = {
   output: {
     publicPath: "http://localhost:8080/",
   },
@@ -13,7 +14,6 @@ module.exports = (_, argv) => ({
 
   devServer: {
     port: 8080,
-    historyApiFallback: true,
   },
 
   module: {
@@ -34,32 +34,30 @@ module.exports = (_, argv) => ({
         exclude: /node_modules/,
         use: {
           loader: "babel-loader",
+          options: {
+            presets: [
+              "@babel/preset-env",
+              "@babel/preset-react",
+              "@babel/preset-typescript"
+            ],
+          },
         },
       },
     ],
   },
 
   plugins: [
-    new ModuleFederationPlugin({
-      name: "host",
-      filename: "remoteEntry.js",
-      remotes: {},
-      exposes: {},
-      shared: {
-        ...deps,
-        react: {
-          singleton: true,
-          requiredVersion: deps.react,
-        },
-        "react-dom": {
-          singleton: true,
-          requiredVersion: deps["react-dom"],
-        },
-      },
-    }),
+// webpack.config.js for host
+new ModuleFederationPlugin({
+  name: 'host',
+  remotes: {
+    remote: 'remote@http://localhost:3000/remoteEntry.js',
+  },
+  shared: ['react', 'react-dom'],
+})
+,
     new HtmlWebPackPlugin({
       template: "./src/index.html",
     }),
-    new Dotenv()
   ],
-});
+};

@@ -1,8 +1,8 @@
 const HtmlWebPackPlugin = require("html-webpack-plugin");
-const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
-const Dotenv = require('dotenv-webpack');
+const ModuleFederationPlugin = require("webpack").container.ModuleFederationPlugin; // Updated import
+
 const deps = require("./package.json").dependencies;
-module.exports = (_, argv) => ({
+module.exports = {
   output: {
     publicPath: "http://localhost:3000/",
   },
@@ -13,13 +13,12 @@ module.exports = (_, argv) => ({
 
   devServer: {
     port: 3000,
-    historyApiFallback: true,
   },
 
   module: {
     rules: [
       {
-        test: /\.m?js/,
+        test: /\.m?js$/,
         type: "javascript/auto",
         resolve: {
           fullySpecified: false,
@@ -44,22 +43,14 @@ module.exports = (_, argv) => ({
       name: "remote",
       filename: "remoteEntry.js",
       remotes: {},
-      exposes: {},
-      shared: {
-        ...deps,
-        react: {
-          singleton: true,
-          requiredVersion: deps.react,
-        },
-        "react-dom": {
-          singleton: true,
-          requiredVersion: deps["react-dom"],
-        },
+      exposes: {
+        "./Counter": "./src/Counter.jsx",
+        "./counterWrapper": "./src/counterWrapper.jsx",
       },
+      shared: ['react', 'react-dom'],
     }),
     new HtmlWebPackPlugin({
       template: "./src/index.html",
     }),
-    new Dotenv()
   ],
-});
+};
