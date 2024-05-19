@@ -1,8 +1,6 @@
 # Micro-Frontends-React
-This is a test to represent the multiple micro fronteds in React
+This is a test to represent the micro fronteds in React
 
 
-
-** Create App
-
+** Create App host and remote
     npx create-mf-app
